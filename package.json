@@ -1,0 +1,25 @@
+{
+  "name": "promise",
+  "version": "0.0.1",
+  "description": "just a learning promise implementation",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paullasarev/promise.git"
+  },
+  "keywords": [
+    "promise"
+  ],
+  "author": "paullasarev@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/paullasarev/promise/issues"
+  },
+  "homepage": "https://github.com/paullasarev/promise"
+}
