@@ -1,12 +1,12 @@
 function Promise(worker) {
-  this.result = undefined;
+  this.onResolve = undefined;
 
   this.resolve = function(result) {
-    this.result = result;
+    this.onResolve(result);
   }
 
   this.then = function(onResolve) {
-    onResolve(this.result);
+    this.onResolve = onResolve;
   }
 
   worker(this.resolve.bind(this));
