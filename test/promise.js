@@ -12,7 +12,16 @@ describe('promise', function(){
     assert.ok(p);
   });
 
-  it('on then resolver should be called', function(){
+  it('on then resolver should be called', function(done){
+    var p = promise(function(resolve, reject){
+      console.log('resolved');
+      resolve(10);
+    });
+
+    p.then(function(val){
+      assert.equal(10, val);
+      done();
+    })
 
   });
 });
