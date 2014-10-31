@@ -1,6 +1,8 @@
 function Promise(worker) {
   this.onResolve = undefined;
   this.onReject = undefined;
+  this.onResolve2 = undefined;
+  this.onReject2 = undefined;
   this.result = undefined;
   this.state = 'pending';
 
