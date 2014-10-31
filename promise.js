@@ -33,20 +33,20 @@ Promise.prototype.then = function(onResolve, onReject) {
     self.onReject2 = reject;
   })
 
+  this.onResolve = onResolve;
+  this.onReject = onReject;
+
   if (this.state === 'resolved') {
-    result = onResolve(this.result);
+    if (this.onResolve)
+      result = onResolve(this.result);
     if (this.onResolve2)
       this.onResolve2(result);
   }
   else if (this.state === 'rejected') {
-    result = onReject(this.result);
+    if (this.onReject)
+      result = onReject(this.result);
     if (this.onReject2)
       this.onReject2(result);
-  }
-  else if (this.state === 'pending')
-  {
-    this.onResolve = onResolve;
-    this.onReject = onReject;
   }
 
   return next;
