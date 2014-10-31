@@ -58,4 +58,18 @@ describe('promise', function(){
       done();
     })
   });
+
+  it('then should be chained', function(done){
+    var p = promise(function(resolve){
+      resolve(10);
+    });
+
+    p.then(function(val){
+      assert.equal(10, val);
+      return 20;
+    }).then(function(val){
+      assert.equal(20, val);
+      done();
+    })
+  });
 });
