@@ -1,5 +1,6 @@
 function Promise(worker) {
   this.onResolve = undefined;
+  this.onReject = undefined;
   this.result = undefined;
   this.state = 'pending';
 
@@ -10,14 +11,26 @@ function Promise(worker) {
       this.onResolve(result);
   }
 
-  this.then = function(onResolve) {
-    if (this.state === 'resolved')
-      onResolve(this.result);
-    else if (this.state === 'pending')
-      this.onResolve = onResolve;
+  this.reject = function(result) {
+    this.result = result;
+    this.state = 'rejected';
+    if (this.onReject)
+      this.onReject(result);
   }
 
-  worker(this.resolve.bind(this));
+  this.then = function(onResolve, onReject) {
+    if (this.state === 'resolved')
+      onResolve(this.result);
+    else if (this.state === 'rejected')
+      onReject(this.result);
+    else if (this.state === 'pending')
+    {
+      this.onResolve = onResolve;
+      this.onReject = onReject;
+    }
+  }
+
+  worker(this.resolve.bind(this), this.reject.bind(this));
 }
 
 

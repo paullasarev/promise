@@ -20,7 +20,6 @@ describe('promise', function(){
       assert.equal(10, val);
       done();
     })
-
   });
 
   it('resolver should be called with async operation', function(done){
@@ -34,6 +33,29 @@ describe('promise', function(){
       assert.equal(20, val);
       done();
     })
+  });
 
+  it('reject should be on err', function(done){
+    var p = promise(function(resolve, reject){
+      reject("err");
+    });
+
+    p.then(undefined, function(err){
+      assert.equal("err", err);
+      done();
+    })
+  });
+
+  it('reject should be called with async err', function(done){
+    var p = promise(function(resolve, reject){
+      setTimeout(function(){
+        reject("err");
+      }, 10);
+    });
+
+    p.then(undefined, function(err){
+      assert.equal("err", err);
+      done();
+    })
   });
 });
