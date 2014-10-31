@@ -56,6 +56,46 @@ Promise.prototype.then = function(onResolve, onReject) {
   return next;
 }
 
-module.exports = function(worker) {
-  return new Promise(worker);
+var CompositePromise = function() {
+  var i, prom;
+  var onResolve, onReject;
+  var argCount = arguments.length;
+  var resolveVals = new Array(argCount);
+  var resolvedCount = 0;
+
+  function compositeResolve(ind, value) {
+    resolveVals[ind] = value;
+    resolvedCount++;
+    if (resolvedCount === argCount)
+      onResolve(resolveVals);
+  }
+
+  function compositeReject(ind, err) {
+    if (onReject)
+      onReject(err);
+  }
+
+  var next = new Promise(function(resolve, reject){
+    onResolve = resolve;
+    onReject = reject;
+  });
+
+  for(i = 0; i < argCount ; ++i)
+  {
+    prom = arguments[i];
+    prom.then(compositeResolve.bind(null, i), compositeReject.bind(null, i));
+  }
+
+  return next;
 }
+
+module.exports = function(worker) {
+  if (!worker)
+  {
+    return {
+      all: CompositePromise,
+    }
+  }
+
+  return new Promise(worker);
+};

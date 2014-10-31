@@ -88,4 +88,38 @@ describe('promise', function(){
       done();
     })
   });
+
+  it('compose promise should work', function(done){
+    var p1 = promise(function(resolve){
+      resolve(10);
+    });
+    var p2 = promise(function(resolve){
+      resolve(20);
+    });
+
+    promise().all(p1, p2).then(function(val){
+      assert.equal(10, val[0]);
+      assert.equal(20, val[1]);
+      done();
+    })
+  });
+
+  it('compose promise should work with timeouts', function(done){
+    var p1 = promise(function(resolve){
+      setTimeout(function(){
+        resolve(10);
+      }, 10);
+    });
+    var p2 = promise(function(resolve){
+      setTimeout(function(){
+        resolve(20);
+      }, 15);
+    });
+
+    promise().all(p1, p2).then(function(val){
+      assert.equal(10, val[0]);
+      assert.equal(20, val[1]);
+      done();
+    })
+  });
 });
