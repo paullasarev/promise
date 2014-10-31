@@ -7,22 +7,30 @@ function Promise(worker) {
   worker(this.resolve.bind(this), this.reject.bind(this));
 }
 
-Promise.prototype.resolve = function(result) {
-  this.result = result;
-  this.state = 'resolved';
+Promise.prototype.doOnResolve = function(result) {
   if (this.onResolve)
     result = this.onResolve(result);
   if (this.onResolve2)
     this.onResolve2(result);
 }
 
-Promise.prototype.reject = function(result) {
+Promise.prototype.resolve = function(result) {
   this.result = result;
-  this.state = 'rejected';
+  this.state = 'resolved';
+  this.doOnResolve(result);
+}
+
+Promise.prototype.doOnReject = function(result) {
   if (this.onReject)
     result = this.onReject(result);
   if (this.onReject2)
     this.onReject2(result);
+}
+
+Promise.prototype.reject = function(result) {
+  this.result = result;
+  this.state = 'rejected';
+  this.doOnReject(result);
 }
 
 Promise.prototype.then = function(onResolve, onReject) {
@@ -37,16 +45,10 @@ Promise.prototype.then = function(onResolve, onReject) {
   this.onReject = onReject;
 
   if (this.state === 'resolved') {
-    if (this.onResolve)
-      result = onResolve(this.result);
-    if (this.onResolve2)
-      this.onResolve2(result);
+    this.doOnResolve(this.result);
   }
   else if (this.state === 'rejected') {
-    if (this.onReject)
-      result = onReject(this.result);
-    if (this.onReject2)
-      this.onReject2(result);
+    this.doOnReject(this.result);
   }
 
   return next;
