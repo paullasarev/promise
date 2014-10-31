@@ -1,10 +1,18 @@
-function Promise(resolver) {
+function Promise(worker) {
+  this.result = undefined;
 
-}
-Promise.prototype.then = function(cb) {
-  cb();
+  this.resolve = function(result) {
+    this.result = result;
+  }
+
+  this.then = function(onResolve) {
+    onResolve(this.result);
+  }
+
+  worker(this.resolve.bind(this));
 }
 
-module.exports = function(resolver) {
-  return new Promise(resolver);
+
+module.exports = function(worker) {
+  return new Promise(worker);
 }

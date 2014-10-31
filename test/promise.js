@@ -5,7 +5,6 @@ describe('promise', function(){
 
   it('should instantiate promise', function(){
     var p = promise(function(resolve, reject){
-      console.log('resolved');
       resolve();
     });
 
@@ -14,7 +13,6 @@ describe('promise', function(){
 
   it('on then resolver should be called', function(done){
     var p = promise(function(resolve, reject){
-      console.log('resolved');
       resolve(10);
     });
 
