@@ -66,7 +66,7 @@ var CompositePromise = function() {
   function compositeResolve(ind, value) {
     resolveVals[ind] = value;
     resolvedCount++;
-    if (resolvedCount === argCount)
+    if (resolvedCount === argCount && onResolve)
       onResolve(resolveVals);
   }
 

@@ -139,4 +139,41 @@ describe('promise', function(){
       done();
     })
   });
+
+ it('composite promise should propagate error', function(done){
+    var p1 = promise(function(resolve, reject){
+      reject("err1");
+    });
+    var p2 = promise(function(resolve){
+      resolve(20);
+    });
+
+    promise().all(p1, p2).then(function(val){
+      assert.fail();
+    }, function(err){
+      assert.equal("err1", err);
+      done();
+    })
+  });
+
+  it('composite promise should propagate fail with timeouts', function(done){
+    var p1 = promise(function(resolve){
+      setTimeout(function(){
+        resolve(10);
+      }, 10);
+    });
+    var p2 = promise(function(resolve, reject){
+      setTimeout(function(){
+        reject("err1");
+      }, 15);
+    });
+
+    promise().all(p1, p2).then(function(val){
+      assert.fail();
+    }, function(err){
+      assert.equal("err1", err);
+      done();
+    })
+  });
+
 });
