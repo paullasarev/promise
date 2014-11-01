@@ -176,4 +176,30 @@ describe('promise', function(){
     })
   });
 
+  it('catch reject should be on err', function(done){
+    var p = promise(function(resolve, reject){
+      reject("err");
+    });
+
+    p.catch(function(err){
+      assert.equal("err", err);
+      done();
+    })
+  });
+
+  it('error should propagate through chain', function(done){
+    var p = promise(function(resolve, reject){
+      reject("err1");
+    });
+
+    p.then(function(val){
+      assert.fail();
+    }).then(function(val){
+      assert.fail();
+    }).catch(function(err){
+      assert.equal("err1", err);
+      done();
+    })
+  });
+
 });

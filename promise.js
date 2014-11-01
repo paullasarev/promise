@@ -56,6 +56,10 @@ Promise.prototype.then = function(onResolve, onReject) {
   return next;
 }
 
+Promise.prototype.catch = function(onReject) {
+  return this.then(null, onReject);
+}
+
 var CompositePromise = function() {
   var i, prom;
   var onResolve, onReject;
