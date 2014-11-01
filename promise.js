@@ -60,7 +60,7 @@ Promise.prototype.catch = function(onReject) {
   return this.then(null, onReject);
 }
 
-var CompositePromise = function() {
+Promise.all = function() {
   var i, prom;
   var onResolve, onReject;
   var argCount = arguments.length;
@@ -93,13 +93,4 @@ var CompositePromise = function() {
   return next;
 }
 
-module.exports = function(worker) {
-  if (!worker)
-  {
-    return {
-      all: CompositePromise,
-    }
-  }
-
-  return new Promise(worker);
-};
+module.exports = Promise;
