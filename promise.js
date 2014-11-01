@@ -1,19 +1,33 @@
 function Promise(worker) {
-  this._onResolve = undefined;
-  this._onReject = undefined;
-  this._onResolveNext = undefined;
-  this._onRejectNext = undefined;
-  this._result = undefined;
+  this._onResolve = null;
+  this._onReject = null;
+  this._onResolveNext = null;
+  this._onRejectNext = null;
+  this._result = null;
   this._state = this._statePending;
 
-  if (worker) {
-    try {
-      worker(this._resolver.bind(this), this._rejecter.bind(this));
-    }
-    catch(err) {
-      this._rejecter(err);
+  this._doWork(worker);
+}
+
+Promise.prototype._doWork = function(worker) {
+  if (!worker)
+    return;
+  try {
+    worker(this._resolver.bind(this), this._rejecter.bind(this));
+  } catch(err) {
+    this._rejecter(err);
+  }
+}
+
+function _isThenable(value) {
+  var t = typeof value;
+  if (value && (t === 'object' || t === 'function')) {
+    var then = value.then;
+    if (typeof then === 'function') {
+      return true;
     }
   }
+  return false;
 }
 
 Promise.prototype._statePending = "pending";
@@ -22,8 +36,13 @@ Promise.prototype._stateRejected = "rejected";
 
 Promise.prototype._doOnResolve = function(result) {
   try {
-    if (this._onResolve)
+    if (this._onResolve) {
       result = this._onResolve(result);
+      if (_isThenable(result)) {
+        result.then(this._onResolveNext, this._onRejectNext);
+        return;
+      }
+    }
   } catch(err) {
     this._rejecter(err);
     return;
@@ -89,14 +108,13 @@ Promise.all = function() {
   var i, prom;
   var onResolve, onReject;
   var args = _iterableArgs(arguments);
-  var argCount = args.length;
-  var resolveVals = new Array(argCount);
+  var resolveVals = new Array(args.length);
   var resolvedCount = 0;
 
   function compositeResolve(ind, value) {
     resolveVals[ind] = value;
     resolvedCount++;
-    if (resolvedCount === argCount && onResolve)
+    if (resolvedCount === resolveVals.length && onResolve)
       onResolve(resolveVals);
   }
 

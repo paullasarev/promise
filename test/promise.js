@@ -26,7 +26,7 @@ describe('promise', function(){
     var p = new Promise(function(resolve){
       setTimeout(function(){
         resolve(20);
-      }, 10);
+      }, 5);
     });
 
     p.then(function(val){
@@ -50,7 +50,7 @@ describe('promise', function(){
     var p = new Promise(function(resolve, reject){
       setTimeout(function(){
         reject("err");
-      }, 10);
+      }, 5);
     });
 
     p.then(undefined, function(err){
@@ -77,7 +77,7 @@ describe('promise', function(){
     var p = new Promise(function(resolve){
       setTimeout(function(){
         resolve(10);
-      }, 10);
+      }, 5);
     });
 
     p.then(function(val){
@@ -108,12 +108,12 @@ describe('promise', function(){
     var p1 = new Promise(function(resolve){
       setTimeout(function(){
         resolve(10);
-      }, 10);
+      }, 5);
     });
     var p2 = new Promise(function(resolve){
       setTimeout(function(){
         resolve(20);
-      }, 15);
+      }, 7);
     });
 
     Promise.all(p1, p2).then(function(val){
@@ -130,7 +130,7 @@ describe('promise', function(){
     var p2 = new Promise(function(resolve){
       setTimeout(function(){
         resolve(20);
-      }, 15);
+      }, 5);
     });
 
     Promise.all(p1, p2).then(function(val){
@@ -160,12 +160,12 @@ describe('promise', function(){
     var p1 = new Promise(function(resolve){
       setTimeout(function(){
         resolve(10);
-      }, 10);
+      }, 5);
     });
     var p2 = new Promise(function(resolve, reject){
       setTimeout(function(){
         reject("err1");
-      }, 15);
+      }, 7);
     });
 
     Promise.all(p1, p2).then(function(val){
@@ -272,4 +272,55 @@ describe('promise', function(){
     })
   });
 
+  it('return promise from then should chain promises', function(done){
+    var p = new Promise(function(resolve, reject){
+      resolve(10);
+    });
+
+    p.then(function(val) {
+      return new Promise(function(resolve) {
+        resolve(val + 20);
+      });
+    }).then (function(val) {
+      assert.equal(30, val);
+      done();
+    });
+  });
+
+  it('return promise should chain async promises', function(done){
+    var p = new Promise(function(resolve, reject){
+      setTimeout( function() {
+        resolve(10);
+      }, 5);
+    });
+
+    p.then(function(val) {
+      return new Promise(function(resolve) {
+        setTimeout( function() {
+          resolve(val + 20);
+        }, 7);
+      });
+    }).then (function(val) {
+      assert.equal(30, val);
+      done();
+    });
+  });
+
+  it('return promise should chain last async', function(done){
+    var p = new Promise(function(resolve, reject){
+      setTimeout( function() {
+        resolve(10);
+      }, 5);
+    });
+
+    p.then(function(val) {
+      return new Promise(function(resolve) {
+        setTimeout( function() {
+          resolve(val + 20);
+          done();
+        }, 7);
+      });
+    })
+  });
+  
 });
