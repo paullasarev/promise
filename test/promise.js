@@ -322,5 +322,43 @@ describe('promise', function(){
       });
     })
   });
-  
+
+  it('race composite should return first promise', function(done){
+    var p1 = new Promise(function(resolve){
+      setTimeout(function(){
+        resolve(10);
+      }, 10);
+    });
+    var p2 = new Promise(function(resolve){
+      setTimeout(function(){
+        resolve(20);
+      }, 5);
+    });
+
+    Promise.race(p1, p2).then(function(val){
+      assert.equal(20, val);
+      done();
+    })
+  });
+
+  it('error in race composite should reject', function(done){
+    var p1 = new Promise(function(resolve, reject){
+      setTimeout(function(){
+        reject(new Error("err"));
+      }, 5);
+    });
+    var p2 = new Promise(function(resolve){
+      setTimeout(function(){
+        resolve(20);
+      }, 5);
+    });
+
+    Promise.race(p1, p2).then(function(val){
+      assert.fail();
+    }).catch(function(err){
+      assert.equal("err", err.message);
+      done();
+    });
+  });
+
 });

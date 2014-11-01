@@ -105,20 +105,19 @@ function _iterableArgs(args)
 }
 
 Promise.all = function() {
-  var i, prom;
   var onResolve, onReject;
   var args = _iterableArgs(arguments);
   var resolveVals = new Array(args.length);
   var resolvedCount = 0;
 
-  function compositeResolve(ind, value) {
+  function allResolve(ind, value) {
     resolveVals[ind] = value;
     resolvedCount++;
     if (resolvedCount === resolveVals.length && onResolve)
       onResolve(resolveVals);
   }
 
-  function compositeReject(err) {
+  function allReject(err) {
     if (onReject)
       onReject(err);
   }
@@ -128,11 +127,23 @@ Promise.all = function() {
     onReject = reject;
   });
 
-  for(i = 0; i < args.length ; ++i)
-  {
-    prom = args[i];
-    prom.then(compositeResolve.bind(null, i), compositeReject);
-  }
+  for(var i = 0 ; i < args.length ; ++i)
+    args[i].then(allResolve.bind(null, i), allReject);
+
+  return next;
+}
+
+Promise.race = function() {
+  var onResolve, onReject;
+  var args = _iterableArgs(arguments);
+
+  var next = new Promise(function(resolve, reject){
+    onResolve = resolve;
+    onReject = reject;
+  });
+
+  for(var i = 0 ; i < args.length ; ++i)
+    args[i].then(onResolve, onReject);
 
   return next;
 }
