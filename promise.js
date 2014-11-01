@@ -6,8 +6,14 @@ function Promise(worker) {
   this._result = undefined;
   this._state = this._statePending;
 
-  if (worker)
-    worker(this._resolver.bind(this), this._rejecter.bind(this));
+  if (worker) {
+    try {
+      worker(this._resolver.bind(this), this._rejecter.bind(this));
+    }
+    catch(err) {
+      this._rejecter(err);
+    }
+  }
 }
 
 Promise.prototype._statePending = "pending";

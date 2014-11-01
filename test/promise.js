@@ -235,4 +235,16 @@ describe('promise', function(){
     })
   });
 
+  it('catch should reject the startup-thrown error', function(done){
+    var p = new Promise(function(resolve, reject){
+      throw(new Error("err"));
+    });
+
+    p.catch(function(err){
+      assert.equal("err", err.message);
+      done();
+    })
+  });
+
+
 });
