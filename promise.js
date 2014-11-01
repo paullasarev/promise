@@ -6,28 +6,19 @@ function Promise(worker) {
   this._result = null;
   this._state = this._statePending;
 
-  this._doWork(worker);
-}
-
-Promise.prototype._doWork = function(worker) {
-  if (!worker)
-    return;
-  try {
-    worker(this._resolver.bind(this), this._rejecter.bind(this));
-  } catch(err) {
-    this._rejecter(err);
+  if (worker) {
+    try {
+      worker(this._resolve.bind(this), this._reject.bind(this));
+    } catch(err) {
+      this._reject(err);
+    }
   }
 }
 
 function _isThenable(value) {
   var t = typeof value;
-  if (value && (t === 'object' || t === 'function')) {
-    var then = value.then;
-    if (typeof then === 'function') {
-      return true;
-    }
-  }
-  return false;
+  return value && (t === 'object' || t === 'function')
+               && (typeof value.then === 'function');
 }
 
 Promise.prototype._statePending = "pending";
@@ -44,7 +35,7 @@ Promise.prototype._doOnResolve = function(result) {
       }
     }
   } catch(err) {
-    this._rejecter(err);
+    this._reject(err);
     return;
   }
   if (this._onResolveNext)
@@ -62,13 +53,13 @@ Promise.prototype._doOnReject = function(result) {
     this._onRejectNext(result);
 }
 
-Promise.prototype._resolver = function(result) {
+Promise.prototype._resolve = function(result) {
   this._result = result;
   this._state = this._stateResolved;
   this._doOnResolve(result);
 }
 
-Promise.prototype._rejecter = function(result) {
+Promise.prototype._reject = function(result) {
   this._result = result;
   this._state = this._stateRejected;
   this._doOnReject(result);
@@ -77,7 +68,7 @@ Promise.prototype._rejecter = function(result) {
 Promise.prototype.then = function(onResolve, onReject) {
   var result;
   var self = this;
-  var next = new Promise(function(resolve, reject){
+  var next = new Promise(function(resolve, reject) {
     self._onResolveNext = resolve;
     self._onRejectNext = reject;
   })
@@ -85,12 +76,10 @@ Promise.prototype.then = function(onResolve, onReject) {
   this._onResolve = onResolve;
   this._onReject = onReject;
 
-  if (this._state === this._stateResolved) {
+  if (this._state === this._stateResolved)
     this._doOnResolve(this._result);
-  }
-  else if (this._state === this._stateRejected) {
+  else if (this._state === this._stateRejected)
     this._doOnReject(this._result);
-  }
 
   return next;
 }
@@ -99,8 +88,7 @@ Promise.prototype.catch = function(onReject) {
   return this.then(null, onReject);
 }
 
-function _iterableArgs(args)
-{
+function _iterableArgs(args) {
   return Array.prototype.concat.apply([], Array.prototype.slice.call(args));
 }
 
@@ -112,23 +100,17 @@ Promise.all = function() {
 
   function allResolve(ind, value) {
     resolveVals[ind] = value;
-    resolvedCount++;
-    if (resolvedCount === resolveVals.length && onResolve)
+    if (++resolvedCount === resolveVals.length)
       onResolve(resolveVals);
   }
 
-  function allReject(err) {
-    if (onReject)
-      onReject(err);
-  }
-
-  var next = new Promise(function(resolve, reject){
+  var next = new Promise(function(resolve, reject) {
     onResolve = resolve;
     onReject = reject;
   });
 
   for(var i = 0 ; i < args.length ; ++i)
-    args[i].then(allResolve.bind(null, i), allReject);
+    args[i].then(allResolve.bind(null, i), onReject);
 
   return next;
 }
@@ -137,7 +119,7 @@ Promise.race = function() {
   var onResolve, onReject;
   var args = _iterableArgs(arguments);
 
-  var next = new Promise(function(resolve, reject){
+  var next = new Promise(function(resolve, reject) {
     onResolve = resolve;
     onReject = reject;
   });
