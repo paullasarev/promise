@@ -70,7 +70,7 @@ var CompositePromise = function() {
       onResolve(resolveVals);
   }
 
-  function compositeReject(ind, err) {
+  function compositeReject(err) {
     if (onReject)
       onReject(err);
   }
@@ -83,7 +83,7 @@ var CompositePromise = function() {
   for(i = 0; i < argCount ; ++i)
   {
     prom = arguments[i];
-    prom.then(compositeResolve.bind(null, i), compositeReject.bind(null, i));
+    prom.then(compositeResolve.bind(null, i), compositeReject);
   }
 
   return next;
