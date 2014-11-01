@@ -219,4 +219,20 @@ describe('promise', function(){
       done();
     })
   });
+
+  it('composite promise should work over iterable object', function(done){
+    var p1 = new Promise(function(resolve){
+      resolve(10);
+    });
+    var p2 = new Promise(function(resolve){
+      resolve(20);
+    });
+
+    Promise.all([p1, p2]).then(function(val){
+      assert.equal(10, val[0]);
+      assert.equal(20, val[1]);
+      done();
+    })
+  });
+
 });

@@ -68,7 +68,8 @@ Promise.prototype.catch = function(onReject) {
 Promise.all = function() {
   var i, prom;
   var onResolve, onReject;
-  var argCount = arguments.length;
+  var args = Array.prototype.concat.apply([], Array.prototype.slice.call(arguments));
+  var argCount = args.length;
   var resolveVals = new Array(argCount);
   var resolvedCount = 0;
 
@@ -89,9 +90,9 @@ Promise.all = function() {
     onReject = reject;
   });
 
-  for(i = 0; i < argCount ; ++i)
+  for(i = 0; i < args.length ; ++i)
   {
-    prom = arguments[i];
+    prom = args[i];
     prom.then(compositeResolve.bind(null, i), compositeReject);
   }
 
