@@ -202,4 +202,21 @@ describe('promise', function(){
     })
   });
 
+  it('resolve static method should make resolved promise', function(done){
+    var p = Promise.resolve("Success");
+
+    p.then(function(val){
+      assert.equal("Success", val);
+      done();
+    })
+  });
+
+  it('reject static method should make rejected promise', function(done){
+    var p = Promise.reject("err");
+
+    p.catch(function(val){
+      assert.equal("err", val);
+      done();
+    })
+  });
 });

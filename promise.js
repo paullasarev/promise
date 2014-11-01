@@ -4,10 +4,15 @@ function Promise(worker) {
   this._onResolveNext = undefined;
   this._onRejectNext = undefined;
   this._result = undefined;
-  this._state = 'pending';
+  this._state = this._statePending;
 
-  worker(this._resolver.bind(this), this._rejecter.bind(this));
+  if (worker)
+    worker(this._resolver.bind(this), this._rejecter.bind(this));
 }
+
+Promise.prototype._statePending = "pending";
+Promise.prototype._stateResolved = "resolved";
+Promise.prototype._stateRejected = "rejected";
 
 Promise.prototype._doOnResolve = function(result) {
   if (this._onResolve)
@@ -18,7 +23,7 @@ Promise.prototype._doOnResolve = function(result) {
 
 Promise.prototype._resolver = function(result) {
   this._result = result;
-  this._state = 'resolved';
+  this._state = this._stateResolved;
   this._doOnResolve(result);
 }
 
@@ -31,7 +36,7 @@ Promise.prototype._doOnReject = function(result) {
 
 Promise.prototype._rejecter = function(result) {
   this._result = result;
-  this._state = 'rejected';
+  this._state = this._stateRejected;
   this._doOnReject(result);
 }
 
@@ -46,10 +51,10 @@ Promise.prototype.then = function(onResolve, onReject) {
   this._onResolve = onResolve;
   this._onReject = onReject;
 
-  if (this._state === 'resolved') {
+  if (this._state === this._stateResolved) {
     this._doOnResolve(this._result);
   }
-  else if (this._state === 'rejected') {
+  else if (this._state === this._stateRejected) {
     this._doOnReject(this._result);
   }
 
@@ -91,6 +96,20 @@ Promise.all = function() {
   }
 
   return next;
+}
+
+Promise.resolve = function(val) {
+  var p = new Promise();
+  p._state = p._stateResolved;
+  p._result = val;
+  return p;
+}
+
+Promise.reject = function(val) {
+  var p = new Promise();
+  p._state = p._stateRejected;
+  p._result = val;
+  return p;
 }
 
 module.exports = Promise;
