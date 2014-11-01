@@ -66,7 +66,6 @@ Promise.prototype._reject = function(result) {
 }
 
 Promise.prototype.then = function(onResolve, onReject) {
-  var result;
   var self = this;
   var next = new Promise(function(resolve, reject) {
     self._onResolveNext = resolve;
