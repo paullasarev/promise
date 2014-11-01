@@ -65,10 +65,15 @@ Promise.prototype.catch = function(onReject) {
   return this.then(null, onReject);
 }
 
+function _iterableArgs(args)
+{
+  return Array.prototype.concat.apply([], Array.prototype.slice.call(args));
+}
+
 Promise.all = function() {
   var i, prom;
   var onResolve, onReject;
-  var args = Array.prototype.concat.apply([], Array.prototype.slice.call(arguments));
+  var args = _iterableArgs(arguments);
   var argCount = args.length;
   var resolveVals = new Array(argCount);
   var resolvedCount = 0;
