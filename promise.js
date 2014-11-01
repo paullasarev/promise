@@ -21,23 +21,32 @@ Promise.prototype._stateResolved = "resolved";
 Promise.prototype._stateRejected = "rejected";
 
 Promise.prototype._doOnResolve = function(result) {
-  if (this._onResolve)
-    result = this._onResolve(result);
+  try {
+    if (this._onResolve)
+      result = this._onResolve(result);
+  } catch(err) {
+    this._rejecter(err);
+    return;
+  }
   if (this._onResolveNext)
     this._onResolveNext(result);
+}
+
+Promise.prototype._doOnReject = function(result) {
+  try {
+    if (this._onReject)
+      result = this._onReject(result);
+  } catch(err) {
+    result = err;
+  }
+  if (this._onRejectNext)
+    this._onRejectNext(result);
 }
 
 Promise.prototype._resolver = function(result) {
   this._result = result;
   this._state = this._stateResolved;
   this._doOnResolve(result);
-}
-
-Promise.prototype._doOnReject = function(result) {
-  if (this._onReject)
-    result = this._onReject(result);
-  if (this._onRejectNext)
-    this._onRejectNext(result);
 }
 
 Promise.prototype._rejecter = function(result) {

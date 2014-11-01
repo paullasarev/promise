@@ -246,5 +246,30 @@ describe('promise', function(){
     })
   });
 
+  it('catch should trap the then-thrown error', function(done){
+    var p = new Promise(function(resolve, reject){
+      resolve(10);
+    });
+
+    p.then(function(resolve) {
+      throw(new Error("err"));
+    }).catch(function(err){
+      assert.equal("err", err.message);
+      done();
+    })
+  });
+
+  it('catch should trap the catch-thrown error', function(done){
+    var p = new Promise(function(resolve, reject){
+      reject(10);
+    });
+
+    p.then(null, function(reject) {
+      throw(new Error("err"));
+    }).catch(function(err){
+      assert.equal("err", err.message);
+      done();
+    })
+  });
 
 });
