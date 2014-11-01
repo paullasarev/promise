@@ -1,56 +1,56 @@
 function Promise(worker) {
-  this.onResolve = undefined;
-  this.onReject = undefined;
-  this.onResolve2 = undefined;
-  this.onReject2 = undefined;
-  this.result = undefined;
-  this.state = 'pending';
+  this._onResolve = undefined;
+  this._onReject = undefined;
+  this._onResolveNext = undefined;
+  this._onRejectNext = undefined;
+  this._result = undefined;
+  this._state = 'pending';
 
-  worker(this.resolve.bind(this), this.reject.bind(this));
+  worker(this._resolver.bind(this), this._rejecter.bind(this));
 }
 
-Promise.prototype.doOnResolve = function(result) {
-  if (this.onResolve)
-    result = this.onResolve(result);
-  if (this.onResolve2)
-    this.onResolve2(result);
+Promise.prototype._doOnResolve = function(result) {
+  if (this._onResolve)
+    result = this._onResolve(result);
+  if (this._onResolveNext)
+    this._onResolveNext(result);
 }
 
-Promise.prototype.resolve = function(result) {
-  this.result = result;
-  this.state = 'resolved';
-  this.doOnResolve(result);
+Promise.prototype._resolver = function(result) {
+  this._result = result;
+  this._state = 'resolved';
+  this._doOnResolve(result);
 }
 
-Promise.prototype.doOnReject = function(result) {
-  if (this.onReject)
-    result = this.onReject(result);
-  if (this.onReject2)
-    this.onReject2(result);
+Promise.prototype._doOnReject = function(result) {
+  if (this._onReject)
+    result = this._onReject(result);
+  if (this._onRejectNext)
+    this._onRejectNext(result);
 }
 
-Promise.prototype.reject = function(result) {
-  this.result = result;
-  this.state = 'rejected';
-  this.doOnReject(result);
+Promise.prototype._rejecter = function(result) {
+  this._result = result;
+  this._state = 'rejected';
+  this._doOnReject(result);
 }
 
 Promise.prototype.then = function(onResolve, onReject) {
   var result;
   var self = this;
   var next = new Promise(function(resolve, reject){
-    self.onResolve2 = resolve;
-    self.onReject2 = reject;
+    self._onResolveNext = resolve;
+    self._onRejectNext = reject;
   })
 
-  this.onResolve = onResolve;
-  this.onReject = onReject;
+  this._onResolve = onResolve;
+  this._onReject = onReject;
 
-  if (this.state === 'resolved') {
-    this.doOnResolve(this.result);
+  if (this._state === 'resolved') {
+    this._doOnResolve(this._result);
   }
-  else if (this.state === 'rejected') {
-    this.doOnReject(this.result);
+  else if (this._state === 'rejected') {
+    this._doOnReject(this._result);
   }
 
   return next;
